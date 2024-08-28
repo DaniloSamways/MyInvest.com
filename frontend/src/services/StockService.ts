@@ -1,6 +1,25 @@
 import { StockResponse } from "@/@types/stock";
 
 class StockService {
+  async getStockVariationIn12Months(code: string) {
+    const response = await fetch(
+      `https://investidor10.com.br/api/cotacoes/acao/chart/${code}/365/true/real`
+    )
+      .then(async (res) => {
+        const response = await res.json();
+        return response["real"];
+      })
+      .catch(() => null);
+
+    if (!response) return null;
+
+    const actualPrice = response[response.length - 1].price;
+    const initialPrice = response[0].price;
+    const variation = ((actualPrice - initialPrice) / initialPrice) * 100;
+
+    return Number(variation.toFixed(2));
+  }
+
   async getStockPrice(type: string, code: string) {
     const response = await fetch(
       `https://investidor10.com.br/api/cotacao/${type}/${code}`
@@ -39,19 +58,20 @@ class StockService {
 
     if (!request) return null;
 
-    const [price, indicators] = await Promise.all([
+    const [price, indicators, variationIn12Months] = await Promise.all([
       this.getStockPrice(request.type, request.id),
       this.getStockIndicators(request.id, 1),
+      this.getStockVariationIn12Months(request.name),
     ]);
 
-    console.log(price, indicators);
-    if (!price || !indicators) return null;
+    if (!price || !indicators || !variationIn12Months) return null;
 
     const response: StockResponse = {
       name: request.name,
       id: request.id,
       type: request.type,
       price: price,
+      variationIn12Months,
       company: {
         sector_id: request.company.sector_id,
         name: request.company.full_name,

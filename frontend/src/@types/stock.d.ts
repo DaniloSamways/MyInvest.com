@@ -3,6 +3,7 @@ export interface StockResponse {
   id: string;
   type: string;
   price: number;
+  variationIn12Months: number;
   company: {
     name: string;
     id: string;
