@@ -50,8 +50,8 @@ export default function Home() {
         <>
           <div className="flex flex-col gap-12">
             <StockCard info={stock} />
-            <StockIndicators />
-            <StockSummary />
+            <StockIndicators stock={stock} />
+            {/* <StockSummary /> */}
           </div>
           <AlertRecommendation />
         </>

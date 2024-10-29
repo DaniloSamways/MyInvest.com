@@ -1,6 +1,11 @@
 import { StockResponse } from "@/@types/stock";
+import { StockIndicatorsService } from "./StockIndicatorsService";
 
 class StockService {
+  constructor(
+    private stockIndicatorsService: StockIndicatorsService = new StockIndicatorsService()
+  ) {}
+
   async getStockVariationIn12Months(code: string) {
     const response = await fetch(
       `https://investidor10.com.br/api/cotacoes/acao/chart/${code}/365/true/real`
@@ -46,6 +51,21 @@ class StockService {
     return response;
   }
 
+  async getDividendHistory(code: string, years: number) {
+    const request = await fetch(
+      `https://investidor10.com.br/api/dividendos/chart/${code}/${
+        years * 365
+      }/ano/`
+    )
+      .then(async (res) => {
+        const response = await res.json();
+        return response;
+      })
+      .catch(() => null);
+
+    return request;
+  }
+
   async findStock(code: string): Promise<StockResponse | null> {
     const request = await fetch(
       `https://investidor10.com.br/api/searchquery/${code}`
@@ -58,20 +78,25 @@ class StockService {
 
     if (!request) return null;
 
-    const [price, indicators, variationIn12Months] = await Promise.all([
-      this.getStockPrice(request.type, request.id),
-      this.getStockIndicators(request.id, 1),
-      this.getStockVariationIn12Months(request.name),
-    ]);
+    const [price, indicators, variationIn12Months, dividendHistory] =
+      await Promise.all([
+        this.getStockPrice(request.type, request.id),
+        this.getStockIndicators(request.id, 5),
+        this.getStockVariationIn12Months(request.name),
+        this.getDividendHistory(request.name, 5),
+      ]);
 
     if (!price || !indicators || !variationIn12Months) return null;
+
+    indicators["HISTORICO DIVIDENDOS"] = dividendHistory;
 
     const response: StockResponse = {
       name: request.name,
       id: request.id,
       type: request.type,
-      price: price,
+      price,
       variationIn12Months,
+      thumbnail: `https://investidor10.com.br/${request.thumbnail}`,
       company: {
         sector_id: request.company.sector_id,
         name: request.company.full_name,
@@ -79,10 +104,53 @@ class StockService {
         good_points: request.company.good_points,
         negative_points: request.company.negative_points,
       },
-      indicators: {},
+      indicators: this.formatIndicators({ indicators, actualPrice: price }),
     };
 
     return response;
+  }
+
+  formatIndicators({
+    indicators,
+    actualPrice,
+  }: {
+    indicators: any;
+    actualPrice: number;
+  }): StockResponse["indicators"] {
+    // Dividend Yield
+    const dy = indicators["DIVIDEND YIELD (DY)"]?.find(
+      (d: { year: string; value: 16.08 }) => d.year == "Atual"
+    )?.value;
+
+    // Payout
+    const payout = indicators["PAYOUT"];
+    const payoutAverageIn5Years =
+      this.stockIndicatorsService.payoutAverageInYears(payout, 5);
+
+    // Dívida Líquida / EBITDA
+    const debtOverEbitda = indicators["DÍVIDA LÍQUIDA / EBITDA"]?.find(
+      (d: { year: string; value: number }) => d.year == "Atual"
+    )?.value;
+
+    // Valor Justo Bazin
+    const bazinFairPrice = this.stockIndicatorsService.bazinFairPrice(
+      indicators["HISTORICO DIVIDENDOS"]
+    );
+
+    // Potencial de rentabilidade
+    const profitabilityPotential =
+      this.stockIndicatorsService.profitabilityPotential({
+        actualPrice,
+        indicators: indicators["HISTORICO DIVIDENDOS"],
+      });
+
+    return {
+      dy: dy && dy !== "-" && Number(dy?.toFixed(2) || "0"),
+      payoutAverageIn5Years: Number(payoutAverageIn5Years.toFixed(2)),
+      debtOverEbitda,
+      bazinFairPrice,
+      profitabilityPotential,
+    };
   }
 }
 

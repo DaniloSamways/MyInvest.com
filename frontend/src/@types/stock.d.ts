@@ -3,6 +3,7 @@ export interface StockResponse {
   id: string;
   type: string;
   price: number;
+  thumbnail: string;
   variationIn12Months: number;
   company: {
     name: string;
@@ -11,5 +12,11 @@ export interface StockResponse {
     good_points: string;
     negative_points: string;
   };
-  indicators: {};
+  indicators: {
+    dy: number;
+    payoutAverageIn5Years: number;
+    debtOverEbitda: number;
+    bazinFairPrice: number;
+    profitabilityPotential: number;
+  };
 }
