@@ -16,7 +16,7 @@ export interface StockResponse {
     dy: number;
     payoutAverageIn5Years: number;
     debtOverEbitda: number;
-    bazinFairPrice: number;
-    profitabilityPotential: number;
+    bazinFairPrice?: number;
+    profitabilityPotential?: number;
   };
 }

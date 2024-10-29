@@ -45,7 +45,7 @@ export function StockCard({ info }: StockCardProps) {
           loading="eager"
           src={info.thumbnail}
           alt={info.name + ` logo`}
-          className="w-[50px] h-[50px]"
+          className="w-[50px] h-[50px] rounded-sm"
           width={50}
           height={50}
         />
