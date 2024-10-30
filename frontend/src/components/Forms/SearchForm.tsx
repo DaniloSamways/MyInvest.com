@@ -3,7 +3,6 @@ import { UseFormReturn } from "react-hook-form";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -40,7 +39,7 @@ export function SearchForm({ form, onSubmit }: SearchFormProps) {
                 Comece buscando pelo ativo desejado
                 <TooltipProvider delayDuration={100}>
                   <Tooltip>
-                    <TooltipTrigger>
+                    <TooltipTrigger type="button">
                       <CircleHelp className="h-4 w-4 text-zinc-600" />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-52 bg-zinc-800 p-2 rounded bg-opacity-90">

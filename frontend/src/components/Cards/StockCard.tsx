@@ -21,9 +21,9 @@ const variationComponent = (variation: number) => {
 
   if (variation >= 0) {
     return (
-      <p className="text-green-500 flex items-center gap-1">
+      <p className="text-green-500 flex items-center gap-1 text-sm sm:text-base">
         <CircleHelp className="h-4 w-4 text-zinc-600" />+{variationFormatted}%
-        <span className="text-zinc-500 text-xs"> (12 meses)</span>
+        <span className="text-zinc-500 text-xs"> (12m)</span>
       </p>
     );
   } else {
@@ -31,7 +31,7 @@ const variationComponent = (variation: number) => {
       <p className="text-red-500 flex items-center gap-1">
         <CircleHelp className="h-4 w-4 text-zinc-600" />
         {variationFormatted}%
-        <span className="text-zinc-500 text-xs"> (12 meses)</span>
+        <span className="text-zinc-500 text-xs"> (12m)</span>
       </p>
     );
   }
@@ -39,8 +39,8 @@ const variationComponent = (variation: number) => {
 
 export function StockCard({ info }: StockCardProps) {
   return (
-    <div className="border rounded px-4 py-4 grid grid-cols-2 gap-10 mx-auto w-full">
-      <div className="flex gap-4 items-center">
+    <div className="border rounded px-4 py-4 grid grid-cols-3 mx-auto w-full">
+      <div className="flex gap-4 items-center col-span-2">
         <Image
           loading="eager"
           src={info.thumbnail}
