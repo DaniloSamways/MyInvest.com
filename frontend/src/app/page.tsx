@@ -13,6 +13,7 @@ import { HomePageSkeleton } from "@/components/Skeletons/HomePageSkeleton";
 import { StockNotFound } from "@/components/StockNotFound";
 import { StockSummary } from "@/components/HomePage/StockSummary";
 import { StockIndicators } from "@/components/HomePage/StockIndicators";
+import { StockPoints } from "@/components/HomePage/StockPoints";
 
 export default function Home() {
   const [stock, setStock] = useState<StockResponse | null>();
@@ -42,7 +43,7 @@ export default function Home() {
   }
 
   return (
-    <main className="mt-10 max-w-screen-sm mx-auto flex flex-col gap-8">
+    <main className="mt-10 max-w-screen-sm mx-auto flex flex-col gap-8 mb-6">
       <SearchForm form={form} onSubmit={onSubmit} />
       {notFound && <StockNotFound />}
       {loading && <HomePageSkeleton />}
@@ -50,6 +51,10 @@ export default function Home() {
         <>
           <div className="flex flex-col gap-12">
             <StockCard info={stock} />
+            <StockPoints
+              negativePoints={stock.company.negative_points}
+              goodPoints={stock.company.good_points}
+            />
             <StockIndicators stock={stock} />
             {/* <StockSummary /> */}
           </div>

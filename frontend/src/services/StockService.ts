@@ -32,6 +32,18 @@ class StockService {
     return debtOverEbitda;
   }
 
+  getPoints(points: string): string[] | undefined {
+    if (!points) return;
+
+    points = points.replace(/<\/?ul>/g, "");
+
+    const pointsArray = points.split("</li>").map((point) => {
+      return point.replace(/<\/?[^>]+(>|$)/g, "").trim();
+    });
+
+    return pointsArray.filter((point) => point !== "");
+  }
+
   async findStock(code: string): Promise<StockResponse | null> {
     const stock = await fetch(
       `https://investidor10.com.br/api/searchquery/${code}`
@@ -59,6 +71,8 @@ class StockService {
       })
       .catch(() => null);
 
+    console.log(stockInfo);
+
     const bazin = this.getBazinFairPrice(stockInfo);
 
     const response: StockResponse = {
@@ -72,8 +86,8 @@ class StockService {
         sector_id: stock.company.sector_id,
         name: stock.company.full_name,
         id: stock.company.id,
-        good_points: stock.company.good_points,
-        negative_points: stock.company.negative_points,
+        good_points: this.getPoints(stock.company.good_points),
+        negative_points: this.getPoints(stock.company.negative_points),
       },
       indicators: {
         bazinFairPrice: bazin.price ? Number(bazin.price) : undefined,
@@ -84,7 +98,7 @@ class StockService {
         debtOverEbitda: this.getDebtOverEbitda(stockInfo),
       },
     };
-
+    console.log(response);
     return response;
   }
 }

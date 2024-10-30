@@ -9,8 +9,8 @@ export interface StockResponse {
     name: string;
     id: string;
     sector_id: string;
-    good_points: string;
-    negative_points: string;
+    good_points?: string[];
+    negative_points?: string[];
   };
   indicators: {
     dy: number;
